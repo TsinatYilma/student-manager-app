@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/user_provider.dart';
 
 class AddUserScreen extends StatefulWidget {
@@ -13,13 +14,33 @@ class AddUserScreen extends StatefulWidget {
 
 class _AddUserScreenState extends State<AddUserScreen> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController jobController = TextEditingController();
+
+  final TextEditingController emailController = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (widget.id != null) {
+      final provider = Provider.of<UserProvider>(context, listen: false);
+
+      final user = provider.users.firstWhere(
+        (u) => u.id == widget.id,
+      );
+
+      nameController.text = user.firstName;
+
+      emailController.text = user.email;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.id == null ? 'Add User' : 'Edit User'),
+        title: Text(
+          widget.id == null ? 'Add User' : 'Edit User',
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -33,27 +54,29 @@ class _AddUserScreenState extends State<AddUserScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: jobController,
+              controller: emailController,
               decoration: const InputDecoration(
-                labelText: 'Job',
+                labelText: 'Email',
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                final provider =
-                    Provider.of<UserProvider>(context, listen: false);
+                final provider = Provider.of<UserProvider>(
+                  context,
+                  listen: false,
+                );
 
                 if (widget.id == null) {
                   await provider.addUser(
                     nameController.text,
-                    jobController.text,
+                    emailController.text,
                   );
                 } else {
                   await provider.editUser(
                     widget.id!,
                     nameController.text,
-                    jobController.text,
+                    emailController.text,
                   );
                 }
 

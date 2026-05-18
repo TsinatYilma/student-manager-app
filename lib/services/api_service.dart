@@ -21,7 +21,7 @@ class ApiService {
     }
   }
 
-  Future<void> createUser(String name, String job) async {
+  Future<void> createUser(String name, String email) async {
     final response = await http.post(
       Uri.parse('$baseUrl/users/add'),
       headers: {
@@ -30,7 +30,7 @@ class ApiService {
       body: jsonEncode({
         'firstName': name,
         'company': {
-          'title': job,
+          'email': email,
         }
       }),
     );
@@ -43,7 +43,7 @@ class ApiService {
   Future<void> updateUser(
     int id,
     String name,
-    String job,
+    String email,
   ) async {
     final response = await http.put(
       Uri.parse('$baseUrl/users/$id'),
@@ -52,6 +52,7 @@ class ApiService {
       },
       body: jsonEncode({
         'firstName': name,
+        'email': email,
       }),
     );
 
