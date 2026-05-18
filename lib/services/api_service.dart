@@ -3,17 +3,17 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://reqres.in/api';
+  static const String baseUrl = 'https://dummyjson.com';
 
   Future<List<UserModel>> fetchUsers() async {
     final response = await http.get(
-      Uri.parse('$baseUrl/users?page=1'),
+      Uri.parse('$baseUrl/users'),
     );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      List users = data['data'];
+      List users = data['users'];
 
       return users.map((user) => UserModel.fromJson(user)).toList();
     } else {
@@ -23,25 +23,36 @@ class ApiService {
 
   Future<void> createUser(String name, String job) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/users'),
-      body: {
-        'name': name,
-        'job': job,
+      Uri.parse('$baseUrl/users/add'),
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: jsonEncode({
+        'firstName': name,
+        'company': {
+          'title': job,
+        }
+      }),
     );
 
-    if (response.statusCode != 201) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Failed to create user');
     }
   }
 
-  Future<void> updateUser(int id, String name, String job) async {
+  Future<void> updateUser(
+    int id,
+    String name,
+    String job,
+  ) async {
     final response = await http.put(
       Uri.parse('$baseUrl/users/$id'),
-      body: {
-        'name': name,
-        'job': job,
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: jsonEncode({
+        'firstName': name,
+      }),
     );
 
     if (response.statusCode != 200) {
@@ -54,7 +65,7 @@ class ApiService {
       Uri.parse('$baseUrl/users/$id'),
     );
 
-    if (response.statusCode != 204) {
+    if (response.statusCode != 200) {
       throw Exception('Failed to delete user');
     }
   }
